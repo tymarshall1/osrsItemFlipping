@@ -314,11 +314,12 @@ async function findProfitableItems(filters) {
 }
 
 const filters = {
-  highPrice: 800000000,
+  highPrice: 1800000000,
   lowPrice: 20000000,
   hoursAgo: 2,
   wantedProfit: 500000,
   volume: 200,
+  refreshRateMins: 1.5,
 };
 
 let originalItemFetch;
@@ -343,4 +344,4 @@ setInterval(async () => {
   } else {
     prettyPrint(freshItems);
   }
-}, 1000 * 60 * 2);
+}, 1000 * 60 * filters.refreshRateMins);
