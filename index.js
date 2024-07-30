@@ -254,7 +254,13 @@ function prettyPrint(items) {
       );
     });
     console.log(
-      "\nLast Updated: " +
+      chalk.red(
+        "\n-------------------------------------------------------------------------------------"
+      )
+    );
+    console.log("Items Found: " + chalk.blueBright(`${items.length}`));
+    console.log(
+      "Last Updated: " +
         chalk.bgBlack(chalk.red(new Date(Date.now()).toLocaleString()))
     );
     console.log(
@@ -262,9 +268,6 @@ function prettyPrint(items) {
         "-------------------------------------------------------------------------------------"
       )
     );
-    for (let i = 0; i < 3; i++) {
-      console.log(" ");
-    }
   }
 }
 
