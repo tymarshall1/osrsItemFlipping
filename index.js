@@ -28,6 +28,20 @@ async function fetchMapping() {
   });
 }
 
+async function fetchVolumes() {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const request = await fetch(
+        "https://prices.runescape.wiki/api/v1/osrs/volumes"
+      );
+      const items = await request.json();
+      resolve(items);
+    } catch (err) {
+      reject("Did not find volumes.");
+    }
+  });
+}
+
 function filterItemsByPrice(items, priceMax, priceMin) {
   let filteredItems = [];
   for (const [key, val] of Object.entries(items.data)) {
@@ -37,6 +51,12 @@ function filterItemsByPrice(items, priceMax, priceMin) {
   }
 
   return filteredItems;
+}
+
+function filterItemsByVolume(items, itemVolumes, volume) {
+  return items.filter((item) => {
+    return itemVolumes.data[item.itemID] >= volume;
+  });
 }
 
 function filterItemsByLastSold(items, hoursAgo) {
@@ -68,11 +88,12 @@ function filterItemByProfit(items, wantedProfit) {
     );
 }
 
-function mapItemsWithDetails(items, itemMap) {
+function mapItemsWithDetails(items, itemMap, itemVolumes) {
   return items.map((item) => {
     const itemData = itemMap.find((data) => {
       return parseInt(data.id, 10) === parseInt(item.itemID, 10);
     });
+
     return {
       id: itemData.id,
       itemBuyPrice: item.data.low.toLocaleString("en-US"),
@@ -80,6 +101,7 @@ function mapItemsWithDetails(items, itemMap) {
       profit: item.profit,
       limit: itemData.limit,
       name: itemData.name,
+      dailyVolume: itemVolumes.data[itemData.id],
     };
   });
 }
@@ -226,6 +248,10 @@ function prettyPrint(items) {
         })`
       );
       console.log("Limit: ", chalk.hex("#ffeead").bold(item.limit));
+      console.log(
+        "Daily Volume: ",
+        chalk.hex("#FFC0CB").bold(item.dailyVolume)
+      );
     });
     console.log(
       "\nLast Updated: " +
@@ -245,6 +271,7 @@ function prettyPrint(items) {
 async function findProfitableItems(filters) {
   try {
     const itemMap = await fetchMapping();
+    const itemVolumes = await fetchVolumes();
     const items = await fetchItems();
     const filteredItemsByPrice = filterItemsByPrice(
       items,
@@ -252,8 +279,14 @@ async function findProfitableItems(filters) {
       filters.lowPrice
     );
 
-    const filteredItemsAfterLastSold = filterItemsByLastSold(
+    const filteredItemsByVolume = filterItemsByVolume(
       filteredItemsByPrice,
+      itemVolumes,
+      filters.volume
+    );
+
+    const filteredItemsAfterLastSold = filterItemsByLastSold(
+      filteredItemsByVolume,
       filters.hoursAgo
     );
 
@@ -264,7 +297,8 @@ async function findProfitableItems(filters) {
 
     const finalProfitableItems = mapItemsWithDetails(
       filteredItemsByWantedProfit,
-      itemMap
+      itemMap,
+      itemVolumes
     );
 
     const itemsSortedByProfit = sortByMostProfit(finalProfitableItems);
@@ -281,6 +315,7 @@ const filters = {
   lowPrice: 20000000,
   hoursAgo: 2,
   wantedProfit: 500000,
+  volume: 200,
 };
 
 let originalItemFetch;
