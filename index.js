@@ -4,11 +4,17 @@ async function fetchItems() {
   return new Promise(async (resolve, reject) => {
     try {
       const request = await fetch(
-        "https://prices.runescape.wiki/api/v1/osrs/latest"
+        "https://prices.runescape.wiki/api/v1/osrs/latest",
+        {
+          headers: {
+            "User-Agent": "tool for finding good items to flip on the ge",
+          },
+        }
       );
       const items = await request.json();
       resolve(items);
     } catch (err) {
+      console.log(err);
       reject("Did not find items.");
     }
   });
@@ -18,11 +24,17 @@ async function fetchMapping() {
   return new Promise(async (resolve, reject) => {
     try {
       const request = await fetch(
-        "https://prices.runescape.wiki/api/v1/osrs/mapping"
+        "https://prices.runescape.wiki/api/v1/osrs/mapping",
+        {
+          headers: {
+            "User-Agent": "tool for finding good items to flip on the ge",
+          },
+        }
       );
       const items = await request.json();
       resolve(items);
     } catch (err) {
+      console.log(err);
       reject("Did not find mapping.");
     }
   });
@@ -32,11 +44,17 @@ async function fetchVolumes() {
   return new Promise(async (resolve, reject) => {
     try {
       const request = await fetch(
-        "https://prices.runescape.wiki/api/v1/osrs/volumes"
+        "https://prices.runescape.wiki/api/v1/osrs/volumes",
+        {
+          headers: {
+            "User-Agent": "tool for finding good items to flip on the ge",
+          },
+        }
       );
       const items = await request.json();
       resolve(items);
     } catch (err) {
+      console.log(err);
       reject("Did not find volumes.");
     }
   });
